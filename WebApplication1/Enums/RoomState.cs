@@ -1,9 +1,8 @@
-﻿namespace StaffZone.Enums
+﻿namespace StaffZone.Enums;
+
+public enum RoomState
 {
-	public enum RoomState
-	{
-		Available,
-		Reserved,
-		Maintenance
-	}
+	Available,
+	Reserved,
+	Maintenance
 }

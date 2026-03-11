@@ -30,7 +30,7 @@ public class FloorManager : GenericManager<FloorDto, Floor>, IFloorManager
 
 	public async Task<FloorDto> CreateFloorAsync(int floorNumber)
 	{
-		// Business validation
+		
 		if (floorNumber <= 0)
 			throw new ArgumentException("Floor number must be positive.");
 

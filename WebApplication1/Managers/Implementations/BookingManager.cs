@@ -47,12 +47,12 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 	public async Task<BookingDto> CreateBookingAsync(CreateBookingDto createBookingDto)
 	{
 		bool checkOutAfterCheckOut = createBookingDto.CheckInDate >= createBookingDto.CheckOutDate;
-		bool presentCheckIn = createBookingDto.CheckInDate < DateTime.Today;
+		bool notPresentCheckIn = createBookingDto.CheckInDate < DateTime.Today;
 
 		if (checkOutAfterCheckOut)
 			throw new ArgumentException("Check-out date must be after check-in date.");
 
-		if (presentCheckIn)
+		if (notPresentCheckIn)
 			throw new ArgumentException("Check-in date cannot be in the past.");
 
 		var room = await _roomRepository.GetByIdAsync(createBookingDto.RoomId);

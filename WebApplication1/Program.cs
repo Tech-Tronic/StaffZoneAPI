@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StaffZone.Entities;
 using StaffZone.Extensions;
 using StaffZone.Mappings;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +14,12 @@ builder.Services.AddApplicationManagers();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+	.AddJsonOptions(options =>
+{
+	// This makes all enums responses serialize as text globally.
+	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -27,7 +32,7 @@ builder.Services.AddDbContext<StaffZoneContext>(options =>
 	options.DisableImplicitFromServicesParameters = true;
 });*/
 
- //Add your custom service
+//Add your custom service
 //builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 

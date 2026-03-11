@@ -25,6 +25,10 @@ public class StaffZoneContext : DbContext
 			.Property(r => r.State)
 			.HasConversion<string>();
 
+		modelBuilder.Entity<Room>()
+			.Property(r => r.Size)
+			.HasConversion<string>();
+
 		// Configure One-to-Many: Floor -> Rooms
 		modelBuilder.Entity<Room>()
 			.HasOne(r => r.Floor)

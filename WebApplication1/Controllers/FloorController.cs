@@ -57,10 +57,10 @@ public class FloorController : ControllerBase
 		return Ok(floor);
 	}
 
-	[HttpPost]
+	[HttpPost("{floorNumber}")]
 	[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(FloorDto))]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<IActionResult> CreateFloor([FromBody] int floorNumber)
+	public async Task<IActionResult> CreateFloor(int floorNumber)
 	{
 		try
 		{
@@ -80,7 +80,7 @@ public class FloorController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<IActionResult> UpdateFloor(int id, [FromBody] int newFloorNumber)
+	public async Task<IActionResult> UpdateFloor([FromRoute] int id, [FromBody] int newFloorNumber)
 	{
 		try
 		{

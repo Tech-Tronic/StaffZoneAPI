@@ -1,9 +1,7 @@
-﻿namespace StaffZone.Enums
-{
-	public enum RoomType
-	{
-		Basic,
-		VIP
+﻿namespace StaffZone.Enums;
 
-	}
+public enum RoomType
+{
+	Basic,
+	VIP
 }
