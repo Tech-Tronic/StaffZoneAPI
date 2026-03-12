@@ -9,6 +9,6 @@ public interface IBookingManager : IGenericManager<BookingDto, Booking>
 	Task<IEnumerable<BookingDto>> GetGuestBookingsAsync(int guestId);
 	Task<IEnumerable<BookingDto>> GetActiveBookingsAsync();
 	Task<BookingDto> CreateBookingAsync(CreateBookingDto createBookingDto);
-	// Task<bool> CancelBookingAsync(int bookingId);
+	Task<bool> CancelBookingAsync(int bookingId);
 	Task<bool> CheckAvailabilityAsync(int roomId, DateTime checkIn, DateTime checkOut);
 }

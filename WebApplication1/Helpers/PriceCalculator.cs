@@ -1,21 +1,29 @@
-﻿using StaffZone.Entities;
-using StaffZone.Enums;
+﻿using StaffZone.Enums;
 
 namespace StaffZone.Helpers;
 
 public class PriceCalculator
 {
-	public static decimal CalcBookingPrice(DateTime checkOut, DateTime checkIn, RoomType type)
+	public static decimal CalcBookingPrice(DateTime checkIn, DateTime checkOut, RoomType type, RoomSize size)
 	{
 		var numberOfNights = (checkOut - checkIn).Days;
-		var pricePerNight = type switch
+
+		decimal typePrice = type switch
 		{
-			RoomType.Basic => 100m,
-			RoomType.VIP => 250m,
-			_ => 100m
+			RoomType.Basic => Constant.BasicPrice,
+			RoomType.VIP => Constant.VIPPrice,
+			_ => Constant.BasicPrice
 		};
 
-		var totalPrice = pricePerNight * numberOfNights;
-		return totalPrice;
+		decimal sizePrice = size switch
+		{
+			RoomSize.Single => Constant.SinglePrice,
+			RoomSize.Double => Constant.DoublePrice,
+			RoomSize.Triple => Constant.TriplePrice,
+			RoomSize.Family => Constant.FamilyPrice,
+			_ => Constant.SinglePrice
+		};
+
+		return typePrice * sizePrice * numberOfNights;
 	}
 }

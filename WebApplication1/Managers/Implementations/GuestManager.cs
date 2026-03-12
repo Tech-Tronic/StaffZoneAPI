@@ -36,11 +36,18 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 
 	public async Task<GuestDto> CreateGuestAsync(CreateGuestDto createGuestDto)
 	{
+		if (string.IsNullOrWhiteSpace(createGuestDto.PhoneNumber))
+			throw new ArgumentException("Phone number is required.");
+
+		var existingPhoneNumber = await _guestRepository.GetGuestByPhoneNumberAsync(createGuestDto.PhoneNumber);
+		if (existingPhoneNumber != null)
+			throw new InvalidOperationException($"Guest with phone number {createGuestDto.PhoneNumber} already exists.");
+
 		if (string.IsNullOrWhiteSpace(createGuestDto.Email))
 			throw new ArgumentException("Email is required.");
 
-		var existingGuest = await _guestRepository.GetGuestByEmailAsync(createGuestDto.Email);
-		if (existingGuest != null)
+		var existingEmail = await _guestRepository.GetGuestByEmailAsync(createGuestDto.Email);
+		if (existingEmail != null)
 			throw new InvalidOperationException($"Guest with email {createGuestDto.Email} already exists.");
 
 		var guest = _mapper.Map<Guest>(createGuestDto);
@@ -60,7 +67,7 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 
 		var updatedGuest = _mapper.Map<Guest>(updateGuestDto);
 		updatedGuest.Id = id;
-		updatedGuest.VisitCount = existingGuest.VisitCount; // Preserve visit count
+		updatedGuest.VisitCount = existingGuest.VisitCount;
 
 		await _guestRepository.UpdateAsync(id, updatedGuest);
 		return true;

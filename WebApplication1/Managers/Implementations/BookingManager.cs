@@ -18,7 +18,7 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 		IBookingRepository bookingRepository,
 		IRoomRepository roomRepository,
 		IGuestRepository guestRepository,
-		IMapper mapper) 
+		IMapper mapper)
 		: base(bookingRepository, mapper)
 	{
 		_bookingRepository = bookingRepository;
@@ -46,25 +46,27 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 
 	public async Task<BookingDto> CreateBookingAsync(CreateBookingDto createBookingDto)
 	{
-		bool checkOutAfterCheckOut = createBookingDto.CheckInDate >= createBookingDto.CheckOutDate;
-		bool notPresentCheckIn = createBookingDto.CheckInDate < DateTime.Today;
+		bool validCheck = createBookingDto.CheckOutDate >= createBookingDto.CheckInDate;
+		bool presentCheckIn = createBookingDto.CheckInDate >= DateTime.Today;
 
-		if (checkOutAfterCheckOut)
+		if (!validCheck)
 			throw new ArgumentException("Check-out date must be after check-in date.");
-
-		if (notPresentCheckIn)
+		if (!presentCheckIn)
 			throw new ArgumentException("Check-in date cannot be in the past.");
 
 		var room = await _roomRepository.GetByIdAsync(createBookingDto.RoomId);
 		if (room == null)
-			throw new ArgumentException($"Room with ID {createBookingDto.RoomId} does not exist.");
+			throw new ArgumentException("Room doesn't exist.");
 
 		var guest = await _guestRepository.GetByIdAsync(createBookingDto.GuestId);
 		if (guest == null)
-			throw new ArgumentException($"Guest with ID {createBookingDto.GuestId} does not exist.");
+			throw new ArgumentException("Guest doesn't exist.");
 
-		var isAvailable = await CheckAvailabilityAsync(
-			createBookingDto.RoomId,
+		if (room.State != RoomState.Available)
+			throw new ArgumentException("Room isn't available.");
+
+		bool isAvailable = await CheckAvailabilityAsync(
+			room.Id,
 			createBookingDto.CheckInDate,
 			createBookingDto.CheckOutDate);
 
@@ -72,7 +74,7 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 			throw new InvalidOperationException("Room is not available for the selected dates.");
 
 		var booking = _mapper.Map<Booking>(createBookingDto);
-		booking.TotalPrice = PriceCalculator.CalcBookingPrice(createBookingDto.CheckOutDate, createBookingDto.CheckInDate, room.Type);
+		booking.TotalPrice = PriceCalculator.CalcBookingPrice(createBookingDto.CheckInDate, createBookingDto.CheckOutDate, room.Type, room.Size);
 
 		await _bookingRepository.AddAsync(booking);
 
@@ -89,12 +91,29 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 	{
 		var existingBookings = await _bookingRepository.GetBookingsByRoomIdAsync(roomId);
 
-		var hasConflict = existingBookings.Any(b =>
+		bool hasConflict = existingBookings.Any(b =>
 			(checkIn >= b.CheckInDate && checkIn < b.CheckOutDate) ||
 			(checkOut > b.CheckInDate && checkOut <= b.CheckOutDate) ||
 			(checkIn <= b.CheckInDate && checkOut >= b.CheckOutDate)
 		);
 
 		return !hasConflict;
+	}
+
+	public async Task<bool> CancelBookingAsync(int id)
+	{
+		var booking = await _repository.GetByIdAsync(id);
+		if (booking == null)
+			return false;
+
+		var room = await _roomRepository.GetByIdAsync(booking.RoomId);
+		if (room != null)
+		{
+			room.State = RoomState.Available;
+			await _roomRepository.UpdateAsync(room.Id, room);
+		}
+
+		await _repository.DeleteAsync(id);
+		return true;
 	}
 }

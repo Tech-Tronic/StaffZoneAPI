@@ -53,7 +53,6 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 		=> _dbSet
 			.AsNoTracking()
 			.Include(b => b.Room)
-				.ThenInclude(r => r!.Floor)
 			.Include(b => b.Guest)
 			.FirstOrDefaultAsync(b => b.Id == bookingId);
 

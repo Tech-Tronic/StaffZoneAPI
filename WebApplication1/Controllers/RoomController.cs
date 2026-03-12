@@ -23,8 +23,8 @@ public class RoomController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RoomDto>))]
-	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RoomDto))]
+	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
 	public async Task<IActionResult> GetRoomById(int id)
 	{
 		var room = await _roomManager.GetByIdAsync(id);
@@ -36,8 +36,8 @@ public class RoomController : ControllerBase
 	}
 
 	[HttpPost]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RoomDto))]
-	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+	[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RoomDto))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> CreateRoom([FromBody] CreateRoomDto createRoomDto)
 	{
 		try
@@ -54,7 +54,7 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("type{id}")]
+	[HttpPut("{id}type")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,7 +75,7 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("size{id}")]
+	[HttpPut("{id}size")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -96,7 +96,7 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("state{id}")]
+	[HttpPut("{id}state")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
