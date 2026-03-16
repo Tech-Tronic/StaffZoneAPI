@@ -3,6 +3,7 @@ using StaffZone.DTOs.Guest;
 using StaffZone.Entities;
 using StaffZone.Repos.Contracts;
 using StaffZone.Managers.Contracts;
+using StaffZone.Helpers;
 
 namespace StaffZone.Managers.Implementations;
 
@@ -36,19 +37,11 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 
 	public async Task<GuestDto> CreateGuestAsync(CreateGuestDto createGuestDto)
 	{
-		if (string.IsNullOrWhiteSpace(createGuestDto.PhoneNumber))
-			throw new ArgumentException("Phone number is required.");
-
-		var existingPhoneNumber = await _guestRepository.GetGuestByPhoneNumberAsync(createGuestDto.PhoneNumber);
-		if (existingPhoneNumber != null)
-			throw new InvalidOperationException($"Guest with phone number {createGuestDto.PhoneNumber} already exists.");
-
-		if (string.IsNullOrWhiteSpace(createGuestDto.Email))
-			throw new ArgumentException("Email is required.");
-
-		var existingEmail = await _guestRepository.GetGuestByEmailAsync(createGuestDto.Email);
-		if (existingEmail != null)
-			throw new InvalidOperationException($"Guest with email {createGuestDto.Email} already exists.");
+		if (Validator.HasNullInfo(createGuestDto.PhoneNumber, createGuestDto.Email))
+			throw new ArgumentException("Guest information are required.");
+		
+		if (await ExistingInfo(createGuestDto.PhoneNumber, createGuestDto.Email))
+			throw new InvalidOperationException($"Guest with these info already exists.");
 
 		var guest = _mapper.Map<Guest>(createGuestDto);
 
@@ -62,8 +55,11 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 		if (existingGuest == null)
 			return false;
 
-		if (string.IsNullOrWhiteSpace(updateGuestDto.Email))
-			throw new ArgumentException("Email is required.");
+		if (Validator.HasNullInfo(updateGuestDto.PhoneNumber, updateGuestDto.Email))
+			throw new ArgumentException("Guest information are required.");
+
+		if (await ExistingInfo(updateGuestDto.PhoneNumber, updateGuestDto.Email))
+			throw new InvalidOperationException($"Guest with these info already exists.");
 
 		var updatedGuest = _mapper.Map<Guest>(updateGuestDto);
 		updatedGuest.Id = id;
@@ -71,5 +67,18 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 
 		await _guestRepository.UpdateAsync(id, updatedGuest);
 		return true;
+	}
+
+	private async Task<bool> ExistingInfo(string? phoneNumber, string? email)
+	{
+		var existingPhoneNumber = await _guestRepository.GetGuestByPhoneNumberAsync(phoneNumber);
+		if (existingPhoneNumber != null)
+			return true;
+
+		var existingEmail = await _guestRepository.GetGuestByEmailAsync(email);
+		if (existingEmail != null)
+			return true;
+		
+		return false;
 	}
 }

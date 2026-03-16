@@ -21,4 +21,11 @@ public static class Validator
 	{
 		return state >= Constant.MinRoomState && state <= Constant.MaxRoomState;
 	}
+
+	public static bool HasNullInfo(string? phoneNumber, string? email)
+	{
+		bool nullPhoneNumber = string.IsNullOrEmpty(phoneNumber);
+		bool nullEmail = string.IsNullOrEmpty(email);
+		return nullPhoneNumber && nullEmail;
+	}
 }
