@@ -18,9 +18,6 @@ public class MappingProfile : Profile
 			.ForMember(dest => dest.State, opt => opt.Ignore())
 			.ForMember(dest => dest.Floor, opt => opt.Ignore())
 			.ForMember(dest => dest.RoomNumber, opt => opt.Ignore());
-		CreateMap<UpdateRoomDto, Room>()
-			.ForMember(dest => dest.Id, opt => opt.Ignore())
-			.ForMember(dest => dest.Floor, opt => opt.Ignore());
 
 		// Guest mappings
 		CreateMap<Guest, GuestDto>();

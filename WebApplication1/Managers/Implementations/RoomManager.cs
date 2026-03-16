@@ -67,23 +67,6 @@ public class RoomManager : GenericManager<RoomDto, Room>, IRoomManager
 		return _mapper.Map<RoomDto>(room);
 	}
 
-	/*public async Task<bool> UpdateRoomAsync(int id, UpdateRoomDto updateRoomDto)
-	{
-		var existingRoom = await _roomRepository.GetByIdAsync(id);
-		if (existingRoom == null)
-			return false;
-
-		var floor = await _floorRepository.GetByIdAsync(updateRoomDto.FloorId);
-		if (floor == null)
-			throw new ArgumentException($"Floor with ID {updateRoomDto.FloorId} does not exist.");
-
-		var updatedRoom = _mapper.Map<Room>(updateRoomDto);
-		updatedRoom.Id = id;
-
-		await _roomRepository.UpdateAsync(id, updatedRoom);
-		return true;
-	}*/
-
 	public async Task<bool> ChangeRoomStateAsync(int roomId, RoomState newState)
 	{
 		var room = await _roomRepository.GetByIdAsync(roomId);

@@ -106,6 +106,9 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 		if (booking == null)
 			return false;
 
+		if (booking.CheckInDate < DateTime.Today)
+			return false;
+
 		var room = await _roomRepository.GetByIdAsync(booking.RoomId);
 		if (room != null)
 		{
