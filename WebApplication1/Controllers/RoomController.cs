@@ -2,6 +2,7 @@
 using StaffZone.DTOs.Room;
 using StaffZone.Enums;
 using StaffZone.Managers.Contracts;
+using StaffZone.Helpers;
 
 namespace StaffZone.Controllers;
 
@@ -25,8 +26,12 @@ public class RoomController : ControllerBase
 	[HttpGet("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RoomDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetRoomById(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid room ID. ID must be a positive number." });
+
 		var room = await _roomManager.GetByIdAsync(id);
 
 		if (room == null)
@@ -54,12 +59,15 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("{id}type")]
+	[HttpPut("{id}/type")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> ChangeRoomType([FromRoute] int id, [FromBody] RoomType type)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid room ID. ID must be a positive number." });
+
 		try
 		{
 			var result = await _roomManager.ChangeRoomTypeAsync(id, type);
@@ -75,12 +83,15 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("{id}size")]
+	[HttpPut("{id}/size")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> ChangeRoomSize([FromRoute] int id, [FromBody] RoomSize size)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid room ID. ID must be a positive number." });
+
 		try
 		{
 			var result = await _roomManager.ChangeRoomSizeAsync(id, size);
@@ -96,12 +107,15 @@ public class RoomController : ControllerBase
 		}
 	}
 
-	[HttpPut("{id}state")]
+	[HttpPut("{id}/state")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> ChangeRoomsState([FromRoute] int id, [FromBody] RoomState state)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid room ID. ID must be a positive number." });
+
 		try
 		{
 			var result = await _roomManager.ChangeRoomStateAsync(id, state);
@@ -120,8 +134,12 @@ public class RoomController : ControllerBase
 	[HttpDelete("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> DeleteRoom(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid room ID. ID must be a positive number." });
+
 		var result = await _roomManager.DeleteAsync(id);
 
 		if (!result)

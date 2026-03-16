@@ -1,6 +1,7 @@
 using AutoMapper;
 using StaffZone.Repos.Contracts;
 using StaffZone.Managers.Contracts;
+using StaffZone.Helpers;
 
 namespace StaffZone.Managers.Implementations;
 
@@ -25,12 +26,18 @@ public abstract class GenericManager<TDto, TEntity> : IGenericManager<TDto, TEnt
 
 	public async Task<TDto?> GetByIdAsync(int id)
 	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid ID. ID must be a positive number.");
+
 		var entity = await _repository.GetByIdAsync(id);
 		return _mapper.Map<TDto?>(entity);
 	}
 
-	public async Task<bool> DeleteAsync(int id)
+	public virtual async Task<bool> DeleteAsync(int id)
 	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid ID. ID must be a positive number.");
+
 		var entity = await _repository.GetByIdAsync(id);
 		if (entity == null)
 			return false;

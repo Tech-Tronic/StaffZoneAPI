@@ -3,6 +3,7 @@ using StaffZone.DTOs.Floor;
 using StaffZone.Entities;
 using StaffZone.Repos.Contracts;
 using StaffZone.Managers.Contracts;
+using StaffZone.Helpers;
 
 namespace StaffZone.Managers.Implementations;
 
@@ -45,18 +46,22 @@ public class FloorManager : GenericManager<FloorDto, Floor>, IFloorManager
 
 	public async Task<bool> UpdateFloorAsync(int id, int newFloorNumber)
 	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid floor ID. Floor ID must be a positive number.");
+
 		var existingFloor = await _floorRepository.GetByIdAsync(id);
 		if (existingFloor == null)
 			return false;
 
-		// Business validation
 		if (newFloorNumber <= 0)
 			throw new ArgumentException("Floor number must be positive.");
 
 		var updatedFloor = new Floor
 		{
 			Id = id,
-			FloorNumber = newFloorNumber
+			FloorNumber = newFloorNumber,
+			RoomsCount = existingFloor.RoomsCount,
+			Rooms = existingFloor.Rooms
 		};
 
 		await _floorRepository.UpdateAsync(id, updatedFloor);

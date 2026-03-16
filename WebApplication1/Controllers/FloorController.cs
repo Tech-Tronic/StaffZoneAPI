@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StaffZone.Managers.Contracts;
 using StaffZone.DTOs.Floor;
+using StaffZone.Helpers;
 
 namespace StaffZone.Controllers;
 
@@ -34,8 +35,12 @@ public class FloorController : ControllerBase
 	[HttpGet("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloorDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetFloorById(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid floor ID. ID must be a positive number." });
+
 		var floor = await _floorManager.GetByIdAsync(id);
 
 		if (floor == null)
@@ -47,8 +52,12 @@ public class FloorController : ControllerBase
 	[HttpGet("{id}/with-rooms")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FloorWithRoomsDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetFloorWithRooms(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid floor ID. ID must be a positive number." });
+
 		var floor = await _floorManager.GetFloorWithRoomsAsync(id);
 
 		if (floor == null)
@@ -79,9 +88,12 @@ public class FloorController : ControllerBase
 	[HttpPut("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> UpdateFloor([FromRoute] int id, [FromBody] int newFloorNumber)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid floor ID. ID must be a positive number." });
+
 		try
 		{
 			var result = await _floorManager.UpdateFloorAsync(id, newFloorNumber);
@@ -100,8 +112,12 @@ public class FloorController : ControllerBase
 	[HttpDelete("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> DeleteFloor(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid floor ID. ID must be a positive number." });
+
 		var result = await _floorManager.DeleteAsync(id);
 
 		if (!result)
@@ -113,8 +129,12 @@ public class FloorController : ControllerBase
 	[HttpGet("{id}/rooms/count")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetRoomCount(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid floor ID. ID must be a positive number." });
+
 		var floor = await _floorManager.GetFloorWithRoomsAsync(id);
 
 		if (floor == null)

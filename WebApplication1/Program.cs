@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using StaffZone.Entities;
 using StaffZone.Extensions;
 using StaffZone.Mappings;
+using StaffZone.Middlewares;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,13 +49,19 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Add global exception handling middleware
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+	// Only redirect to HTTPS in production
+	app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowFrontend");
 

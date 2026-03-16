@@ -39,6 +39,8 @@ public class MappingProfile : Profile
 
 		CreateMap<Booking, BookingDetailsDto>()
 			.ForMember(dest => dest.NumberOfNights,
-				opt => opt.MapFrom(src => (src.CheckOutDate - src.CheckInDate).Days));
+				opt => opt.MapFrom(src => (src.CheckOutDate - src.CheckInDate).Days))
+			.ForMember(dest => dest.Room, opt => opt.MapFrom(src => src.Room))
+			.ForMember(dest => dest.Guest, opt => opt.MapFrom(src => src.Guest));
 	}
 }

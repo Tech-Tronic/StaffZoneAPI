@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StaffZone.DTOs.Guest;
 using StaffZone.Managers.Contracts;
+using StaffZone.Helpers;
 
 namespace StaffZone.Controllers;
 
@@ -26,6 +27,9 @@ public class GuestController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
 	public async Task<IActionResult> GetGuestById(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid guest ID. ID must be a positive number." });
+
 		var guest = await _guestManager.GetByIdAsync(id);
 
 		if (guest == null)
@@ -37,8 +41,12 @@ public class GuestController : ControllerBase
 	[HttpGet("email/{email}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GuestDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetGuestByEmail(string email)
 	{
+		if (!Validator.IsValidEmail(email))
+			return BadRequest(new { message = "Email cannot be null or empty." });
+
 		var guest = await _guestManager.GetGuestByEmailAsync(email);
 
 		if (guest == null)
@@ -50,8 +58,12 @@ public class GuestController : ControllerBase
 	[HttpGet("name/{firstName}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GuestDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetGuestByName(string firstName)
 	{
+		if (!Validator.IsValidSearchString(firstName))
+			return BadRequest(new { message = "First name cannot be null or empty." });
+
 		var guest = await _guestManager.GetGuestByNameAsync(firstName);
 
 		if (guest == null)
@@ -63,8 +75,12 @@ public class GuestController : ControllerBase
 	[HttpGet("phone/{phoneNumber}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GuestDto))]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> GetGuestByPhoneNumber(string phoneNumber)
 	{
+		if (!Validator.IsValidSearchString(phoneNumber))
+			return BadRequest(new { message = "Phone number cannot be null or empty." });
+
 		var guest = await _guestManager.GetGuestByPhoneNumberAsync(phoneNumber);
 
 		if (guest == null)
@@ -102,6 +118,9 @@ public class GuestController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(object))]
 	public async Task<IActionResult> UpdateGuest(int id, [FromBody] CreateGuestDto updateGuestDto)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid guest ID. ID must be a positive number." });
+
 		try
 		{
 			var result = await _guestManager.UpdateGuestAsync(id, updateGuestDto);
@@ -115,6 +134,10 @@ public class GuestController : ControllerBase
 		{
 			return BadRequest(new { message = ex.Message });
 		}
+		catch (InvalidOperationException ex)
+		{
+			return BadRequest(new { message = ex.Message });
+		}
 	}
 
 	[HttpDelete("{id}")]
@@ -122,6 +145,9 @@ public class GuestController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(object))]
 	public async Task<IActionResult> DeleteGuest(int id)
 	{
+		if (!Validator.IsValidId(id))
+			return BadRequest(new { message = "Invalid guest ID. ID must be a positive number." });
+
 		var result = await _guestManager.DeleteAsync(id);
 
 		if (!result)

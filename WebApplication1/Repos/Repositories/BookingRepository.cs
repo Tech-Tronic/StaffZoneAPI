@@ -28,10 +28,10 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 
 	public async Task<IEnumerable<Booking>> GetActiveBookingsAsync()
 	{
-		var today = DateTime.Today;
+		var today = DateTime.UtcNow.Date;
 		return await _dbSet
 			.AsNoTracking()
-			.Where(b => b.CheckInDate <= today && b.CheckOutDate >= today)
+			.Where(b => b.CheckInDate <= today && b.CheckOutDate > today)
 			.Include(b => b.Room)
 			.Include(b => b.Guest)
 			.ToListAsync();
@@ -39,7 +39,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 
 	public async Task<IEnumerable<Booking>> GetUpcomingBookingsAsync()
 	{
-		var today = DateTime.Today;
+		var today = DateTime.UtcNow.Date;
 		return await _dbSet
 			.AsNoTracking()
 			.Where(b => b.CheckInDate > today)

@@ -51,6 +51,9 @@ public class GuestManager : GenericManager<GuestDto, Guest>, IGuestManager
 
 	public async Task<bool> UpdateGuestAsync(int id, CreateGuestDto updateGuestDto)
 	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid guest ID. Guest ID must be a positive number.");
+
 		var existingGuest = await _guestRepository.GetByIdAsync(id);
 		if (existingGuest == null)
 			return false;

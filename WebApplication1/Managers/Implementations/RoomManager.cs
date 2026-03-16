@@ -40,10 +40,14 @@ public class RoomManager : GenericManager<RoomDto, Room>, IRoomManager
 
 	public async Task<RoomDto> CreateRoomAsync(CreateRoomDto createRoomDto)
 	{
+		
+		if (!Validator.IsValidId(createRoomDto.FloorId))
+			throw new ArgumentException("Invalid floor ID. Floor ID must be a positive number.");
+
 		var floor = await _floorRepository.GetByIdAsync(createRoomDto.FloorId);
 
 		if (floor == null)
-			throw new ArgumentException($"Floor with ID {createRoomDto.FloorId} does not exist.");
+			throw new KeyNotFoundException($"Floor with ID {createRoomDto.FloorId} does not exist.");
 		if (!Validator.IsValidType((int)createRoomDto.Type))
 			throw new ArgumentException("This type isn't available");
 		if (!Validator.IsValidSize((int)createRoomDto.Size))
@@ -112,4 +116,23 @@ public class RoomManager : GenericManager<RoomDto, Room>, IRoomManager
 		return true;
 	}
 
+	public override async Task<bool> DeleteAsync(int id)
+	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid room ID. Room ID must be a positive number.");
+
+		var room = await _roomRepository.GetByIdAsync(id);
+		if (room == null)
+			return false;
+
+		var floor = await _floorRepository.GetByIdAsync(room.FloorId);
+		if (floor != null && floor.RoomsCount > 0)
+		{
+			floor.RoomsCount--;
+			await _floorRepository.UpdateAsync(floor.Id, floor);
+		}
+
+		await _roomRepository.DeleteAsync(id);
+		return true;
+	}
 }

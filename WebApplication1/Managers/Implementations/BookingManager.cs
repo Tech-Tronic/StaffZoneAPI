@@ -46,8 +46,13 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 
 	public async Task<BookingDto> CreateBookingAsync(CreateBookingDto createBookingDto)
 	{
-		bool validCheck = createBookingDto.CheckOutDate >= createBookingDto.CheckInDate;
-		bool presentCheckIn = createBookingDto.CheckInDate >= DateTime.Today;
+		if (!Validator.IsValidId(createBookingDto.RoomId))
+			throw new ArgumentException("Invalid room ID. Room ID must be a positive number.");
+		if (!Validator.IsValidId(createBookingDto.GuestId))
+			throw new ArgumentException("Invalid guest ID. Guest ID must be a positive number.");
+
+		bool validCheck = createBookingDto.CheckOutDate > createBookingDto.CheckInDate;
+		bool presentCheckIn = createBookingDto.CheckInDate.Date >= DateTime.UtcNow.Date;
 
 		if (!validCheck)
 			throw new ArgumentException("Check-out date must be after check-in date.");
@@ -56,14 +61,14 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 
 		var room = await _roomRepository.GetByIdAsync(createBookingDto.RoomId);
 		if (room == null)
-			throw new ArgumentException("Room doesn't exist.");
+			throw new KeyNotFoundException("Room doesn't exist.");
 
 		var guest = await _guestRepository.GetByIdAsync(createBookingDto.GuestId);
 		if (guest == null)
-			throw new ArgumentException("Guest doesn't exist.");
+			throw new KeyNotFoundException("Guest doesn't exist.");
 
 		if (room.State != RoomState.Available)
-			throw new ArgumentException("Room isn't available.");
+			throw new InvalidOperationException("Room isn't available.");
 
 		bool isAvailable = await CheckAvailabilityAsync(
 			room.Id,
@@ -89,6 +94,9 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 
 	public async Task<bool> CheckAvailabilityAsync(int roomId, DateTime checkIn, DateTime checkOut)
 	{
+		if (!Validator.IsValidId(roomId))
+			throw new ArgumentException("Invalid room ID. Room ID must be a positive number.");
+
 		var existingBookings = await _bookingRepository.GetBookingsByRoomIdAsync(roomId);
 
 		bool hasConflict = existingBookings.Any(b =>
@@ -102,11 +110,14 @@ public class BookingManager : GenericManager<BookingDto, Booking>, IBookingManag
 
 	public async Task<bool> CancelBookingAsync(int id)
 	{
+		if (!Validator.IsValidId(id))
+			throw new ArgumentException("Invalid booking ID. Booking ID must be a positive number.");
+
 		var booking = await _repository.GetByIdAsync(id);
 		if (booking == null)
 			return false;
 
-		if (booking.CheckInDate < DateTime.Today)
+		if (booking.CheckInDate.Date < DateTime.UtcNow.Date)
 			return false;
 
 		var room = await _roomRepository.GetByIdAsync(booking.RoomId);

@@ -28,4 +28,19 @@ public static class Validator
 		bool nullEmail = string.IsNullOrEmpty(email);
 		return nullPhoneNumber && nullEmail;
 	}
+
+	public static bool IsValidId(int id)
+	{
+		return id > 0;
+	}
+
+	public static bool IsValidEmail(string? email)
+	{
+		return !string.IsNullOrWhiteSpace(email);
+	}
+
+	public static bool IsValidSearchString(string? searchTerm)
+	{
+		return !string.IsNullOrWhiteSpace(searchTerm);
+	}
 }
