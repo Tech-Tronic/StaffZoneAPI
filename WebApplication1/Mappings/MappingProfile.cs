@@ -11,6 +11,15 @@ public class MappingProfile : Profile
 {
 	public MappingProfile()
 	{
+		// this the default in c#
+		SourceMemberNamingConvention = PascalCaseNamingConvention.Instance;
+		DestinationMemberNamingConvention = PascalCaseNamingConvention.Instance;
+		
+		ShouldMapProperty = pi =>
+		pi.GetMethod != null && (pi.GetMethod.IsPublic || pi.GetMethod.IsPrivate);
+
+		ShouldMapField = fi => false;
+
 		// Room mappings
 		CreateMap<Room, RoomDto>();
 		CreateMap<CreateRoomDto, Room>()

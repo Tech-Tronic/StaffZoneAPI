@@ -28,7 +28,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
 
 	public async Task<IEnumerable<Booking>> GetActiveBookingsAsync()
 	{
-		var today = DateTime.UtcNow.Date;
+		var today = DateTime.UtcNow;
 		return await _dbSet
 			.AsNoTracking()
 			.Where(b => b.CheckInDate <= today && b.CheckOutDate > today)

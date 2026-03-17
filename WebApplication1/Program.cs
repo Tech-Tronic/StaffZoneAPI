@@ -4,11 +4,15 @@ using StaffZone.Extensions;
 using StaffZone.Mappings;
 using StaffZone.Middlewares;
 using System.Text.Json.Serialization;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationRepositories();
 builder.Services.AddApplicationManagers();
+
+new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>())
+	.AssertConfigurationIsValid();
 
 // AutoMapper - Singleton (configured once)
 // IMapper interface that you inject into your controllers or services is registered as Transient by default.
